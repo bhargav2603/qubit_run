@@ -283,6 +283,38 @@ def _core_diagnostics(
     return diagnostics
 
 
+def _use_full_sz_solver(solver: Any, molecule: Any, fci: Any) -> None:
+    """Make the reference the lowest state of the whole S_z = 0 sector.
+
+    HI-VQE searches every determinant with n_alpha up and n_beta down and takes
+    the lowest eigenvalue it can reach. For its error to be an error rather than
+    an artefact, the reference has to be the lowest eigenvalue of that same
+    sector -- no more constrained, no less.
+
+    PySCF's default for a closed-shell RHF reference is `direct_spin0`, which
+    exploits the alpha<->beta symmetry of the CI matrix. That is a real speedup
+    and it is silently wrong here: a CI vector constrained to be symmetric under
+    that exchange spans only the even-S states, so the solver cannot return a
+    triplet even when a triplet is the ground state.
+
+    Near equilibrium this is invisible, because the singlet is lower anyway. At
+    a dissociated Li-S bond it is not: the fragments are Li(2S) and LiS(2Pi),
+    two doublets whose singlet and triplet couplings are nearly degenerate, and
+    whichever is lower is the physical answer. Scored against a singlet-only
+    reference, a correct HI-VQE run that finds the triplet comes back with a
+    *negative* error and is reported INCONSISTENT -- which reads as a bug and is
+    not one.
+
+    `direct_spin1` imposes only S_z, which is exactly the constraint HI-VQE
+    itself is under.
+    """
+    solver.fcisolver = fci.direct_spin1.FCISolver(molecule)
+    # The comparison downstream is at the tenth of a millihartree, and the
+    # near-degeneracy that motivates this function is also what makes Davidson
+    # lazy about the last few digits.
+    solver.fcisolver.conv_tol = 1e-12
+
+
 def build_active_space(
     spec: MoleculeSpec,
     bond_angstrom: float | None = None,
@@ -292,7 +324,7 @@ def build_active_space(
     max_scf_cycles: int = 200,
 ) -> dict[str, Any]:
     """Run SCF, select the active space, and return everything worth caching."""
-    from pyscf import ao2mo, mcscf, scf
+    from pyscf import ao2mo, fci, mcscf, scf
 
     molecule = build_molecule(spec, bond_angstrom)
     n_electrons = int(molecule.nelectron)
@@ -335,6 +367,7 @@ def build_active_space(
 
     if orbitals == "hf":
         solver = mcscf.CASCI(mean_field, spec.n_active_orbitals, spec.n_active_electrons)
+        _use_full_sz_solver(solver, molecule, fci)
         solver.kernel()
         mo_coeff = np.asarray(mean_field.mo_coeff)
         mo_energy = np.asarray(mean_field.mo_energy)
@@ -343,6 +376,7 @@ def build_active_space(
         solver = mcscf.CASSCF(
             mean_field, spec.n_active_orbitals, spec.n_active_electrons
         )
+        _use_full_sz_solver(solver, molecule, fci)
         solver.max_cycle_macro = 100
         solver.kernel()
         mo_coeff = np.asarray(solver.mo_coeff)
@@ -350,6 +384,13 @@ def build_active_space(
         reference_method = "CASSCF"
     else:
         raise ValueError(f"unknown orbital choice {orbitals!r}; use hf or casscf")
+
+    # What spin state did the reference actually land on? Recorded rather than
+    # assumed, because at long bond length the answer changes and every error
+    # downstream is measured against this number.
+    reference_spin_squared, reference_multiplicity = solver.fcisolver.spin_square(
+        solver.ci, solver.ncas, solver.nelecas
+    )
 
     core = _core_diagnostics(molecule, mo_coeff, mo_energy, n_core, spec.core_atom_index)
     gap = float(mo_energy[n_core] - mo_energy[n_core - 1]) if n_core else float("inf")
@@ -384,6 +425,8 @@ def build_active_space(
         "core_energy": float(core_energy),
         "reference_method": reference_method,
         "reference_energy": float(solver.e_tot),
+        "reference_spin_squared": float(reference_spin_squared),
+        "reference_multiplicity": float(reference_multiplicity),
         "rhf_energy": float(mean_field.e_tot),
         "nuclear_repulsion": float(molecule.energy_nuc()),
         "core_diagnostics": core,
@@ -450,6 +493,11 @@ def cache_payload(
             "rhf_total": built["rhf_energy"],
             "casci_total": built["reference_energy"],
             "reference_method": built["reference_method"],
+            # <S^2> of the reference state. 0 is a singlet, 2 a triplet. It is
+            # not fixed along the dissociation coordinate, and the point where
+            # it changes is physics, not a glitch.
+            "reference_spin_squared": built["reference_spin_squared"],
+            "reference_multiplicity": built["reference_multiplicity"],
             "nuclear_repulsion": built["nuclear_repulsion"],
             "core_energy": built["core_energy"],
             "hartree_fock_determinant": determinant_energy,

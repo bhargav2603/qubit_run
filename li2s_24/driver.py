@@ -239,6 +239,12 @@ def run_one(
             "n_active_electrons": cached.metadata["n_active_electrons"],
             "n_active_orbitals": cached.metadata["n_active_orbitals"],
             "reference_method": cached.reference_method,
+            # Which spin state the reference landed on. Along a dissociation
+            # coordinate this is not constant, and an error is only meaningful
+            # once you know the two numbers came from the same sector.
+            "reference_spin_squared": cached.metadata["energies"].get(
+                "reference_spin_squared"
+            ),
             "cache": cache.name,
             "cache_sha256": receipt["cache_sha256"],
             "workflow_sha256": workflow_fingerprint(),
@@ -350,16 +356,19 @@ def scan_main(
     started = time.time()
     header = (
         f"{'r (A)':>7} {'E(HI-VQE)':>17} {'E(ref)':>17} {'err (mHa)':>11} "
-        f"{'dets':>9} {'%space':>8} {'verdict':>26}"
+        f"{'dets':>9} {'%space':>8} {'S2':>6} {'refS2':>6} {'verdict':>26}"
     )
 
     def show(bond: float, payload: dict[str, Any]) -> None:
+        reference_spin = payload.get("reference_spin_squared")
+        reference_text = "  --  " if reference_spin is None else f"{reference_spin:>6.3f}"
         print(
             f"{bond:>7.3f} {payload['energy']:>17.9f} "
             f"{payload['reference_energy']:>17.9f} "
             f"{payload['error_millihartree']:>11.4f} "
             f"{payload['dimension']:>9,} "
             f"{100 * payload['subspace_fraction']:>7.3f}% "
+            f"{payload['spin_squared']:>6.3f} {reference_text} "
             f"{payload['verdict']:>26}"
         )
 
@@ -420,6 +429,10 @@ def scan_main(
         "error_pt2_millihartree": [
             row.get("error_pt2_millihartree", row["error_millihartree"])
             for row in rows
+        ],
+        "spin_squared": [row["spin_squared"] for row in rows],
+        "reference_spin_squared": [
+            row.get("reference_spin_squared") for row in rows
         ],
         "dimension": [row["dimension"] for row in rows],
         "subspace_fraction": [row["subspace_fraction"] for row in rows],
