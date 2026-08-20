@@ -1,0 +1,39 @@
+# Local Qiskit Aer environment for the acrylamide-thiolate CAS study.
+# Python 3.12 (3.13 is avoided: not every wheel below ships for it yet).
+#
+#   uv venv --python 3.12 .venv
+#   .venv\Scripts\activate
+#   uv pip install -r requirements.txt
+#
+# Verified working on Windows 11 / Python 3.12.13 / uv 0.11.31 with
+# qiskit 2.5.2, qiskit-aer 0.17.2, qiskit-nature 0.8.0, openfermion 1.8.1.
+
+qiskit==2.5.*
+qiskit-aer==0.17.*
+
+# UCCSD, the Hartree-Fock initial state and the Jordan-Wigner mapper.
+# qiskit-nature 0.8.0 predates Qiskit 2.x, so the pairing was checked rather
+# than assumed: UCCSD builds, simulates on Aer, and puts theta = 0 exactly on
+# the Hartree-Fock determinant. Note it uses BLOCKED spin-orbital ordering
+# where OpenFermion uses INTERLEAVED -- qiskit_runtime.interleaved_to_blocked
+# handles the permutation and selftest.py checks it determinant by determinant.
+qiskit-nature==0.8.*
+
+openfermion>=1.6,<2
+numpy>=1.26,<3
+scipy>=1.11
+
+# PySCF is needed ONLY by `run.py prepare` and `run.py ladder`, and it publishes
+# no Windows wheel -- the source build wants nmake and a C/C++ toolchain and is
+# unsupported on Windows even with one. The marker keeps `pip install -r`
+# working on Windows instead of failing the whole file on a package that cannot
+# build. Build the Hamiltonian once on Linux/macOS/WSL/Colab, copy the JSON
+# across, and everything after that runs natively on Windows.
+pyscf>=2.5; sys_platform != "win32"
+
+# NOT used, deliberately. qiskit-algorithms' ReverseEstimatorGradient (adjoint
+# differentiation) is numerically correct -- it agreed with finite differences
+# to 1.7e-11 -- but took 619 s for a single 26-component UCCSD gradient, against
+# ~1.4 s for the batched finite differences this workflow uses. Install it only
+# if you want to re-run that comparison yourself.
+# qiskit-algorithms>=0.3

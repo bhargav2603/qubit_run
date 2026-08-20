@@ -1,0 +1,43 @@
+# Li2S CAS(12e,12o), 24 qubits -- HI-VQE on Qiskit.
+#
+# Python 3.12, not 3.13: several wheels in this stack are still catching up on
+# 3.13, and 3.12 is what the quantum libraries are tested against.
+#
+#   uv venv --python 3.12 .venv
+#   .venv\Scripts\activate          (Windows)   or   source .venv/bin/activate
+#   uv pip install -r requirements.txt
+#
+# On Google Colab everything below installs with a plain
+#   !pip install -q pyscf qiskit qiskit-aer openfermion
+# and PySCF works there, so the whole workflow runs in one session.
+
+# The classical engine. This is all `validate`, `hivqe`, `scan` and `summary`
+# actually need -- the determinant algebra is plain NumPy and SciPy.
+numpy>=1.26,<3
+scipy>=1.11
+
+# The circuits. `ansatz.py` and `sector_sim.py` are the only modules that import
+# them, and `--simulator none` runs the classical control without either.
+qiskit>=1.2,<3
+qiskit-aer>=0.15
+
+# An independent Jordan-Wigner implementation, used by `run.py selftest` to
+# check our determinant conventions against a package that shares no code with
+# this one, and by `run.py paulis` to count Pauli words. The self-test skips
+# those checks with a clear message if it is missing.
+openfermion>=1.6,<2
+
+# Charts only (`run.py plot`, the figures embedded by `run.py report`, and
+# `visualize.show()` in Colab). Nothing in the physics or simulator path imports
+# it, so a machine without it loses the pictures and nothing else.
+matplotlib>=3.8
+
+# PySCF is needed ONLY by `run.py prepare`, `run.py geometry` and
+# `run.py classical`, and it publishes no Windows wheel -- the source build wants
+# nmake and a C/C++ toolchain and is unsupported on Windows even with one. The
+# marker below keeps `pip install -r` working on Windows instead of failing the
+# whole file on a package that cannot build there.
+#
+# Build the Hamiltonians once on Linux, macOS, WSL or Colab, copy the JSON caches
+# across, and everything after that runs natively on Windows.
+pyscf>=2.5; sys_platform != "win32"

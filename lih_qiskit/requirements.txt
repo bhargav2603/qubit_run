@@ -1,0 +1,30 @@
+# Local Qiskit Aer environment for the LiH/STO-3G study.
+#
+# Python 3.12, not 3.13: the scientific wheels this stack needs are still
+# catching up on 3.13, and 3.12 is what the quantum libraries are tested against.
+#
+#   uv venv --python 3.12 .venv
+#   .venv\Scripts\activate
+#   uv pip install -r requirements.txt
+#
+# Verified working on Windows 11 / Python 3.12.13 / Qiskit 2.5.2 / Aer 0.17.2.
+# The repository's ..\.venv-qiskit already satisfies this file.
+
+qiskit==2.5.*
+qiskit-aer==0.17.*
+openfermion>=1.6,<2
+numpy>=1.26,<3
+scipy>=1.11
+
+# Used for the UCCSD ansatz only (`--ansatz uccsd`). No qiskit-nature driver is
+# involved, so this does NOT drag in PySCF: the circuit is built from the
+# orbital and electron counts alone.
+qiskit-nature>=0.7,<0.9
+
+# PySCF is OPTIONAL. `prepare` prefers it when it is importable and otherwise
+# falls back to the built-in STO-3G engine in integrals.py, which is what lets
+# the command run on Windows -- PySCF publishes no Windows wheel, and its source
+# build wants nmake and a C/C++ toolchain and is unsupported there even with one.
+# The marker keeps `pip install -r` working on Windows instead of failing the
+# whole file on a package that cannot build.
+pyscf>=2.5; sys_platform != "win32"

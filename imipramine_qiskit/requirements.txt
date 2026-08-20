@@ -1,0 +1,32 @@
+# Local Qiskit Aer environment for the imipramine CASCI(6e,6o) study.
+#
+# Python 3.12, not 3.13: the scientific wheels this stack needs are still
+# catching up on 3.13, and 3.12 is what the quantum libraries are tested against.
+#
+#   uv venv --python 3.12 .venv
+#   .venv\Scripts\activate
+#   uv pip install -r requirements.txt
+#
+# Verified working on Windows 11 / Python 3.12.13 / Qiskit 2.5.2 / Aer 0.17.2 /
+# OpenFermion 1.8.1 / NumPy 2.5.2 / SciPy 1.18.0.
+# The repository's ..\.venv-qiskit already satisfies this file.
+
+qiskit==2.5.*
+qiskit-aer==0.17.*
+openfermion>=1.6,<2
+numpy>=1.26,<3
+scipy>=1.11
+
+# Charts only (`run.py plot`, and `visualize.show()` in the Colab notebook).
+# Nothing in the physics or simulator path imports it, so a missing matplotlib
+# costs you the pictures and nothing else.
+matplotlib>=3.8
+
+# PySCF is needed ONLY by `python run.py prepare`, and it publishes no Windows
+# wheel -- the source build wants nmake and a C/C++ toolchain and is unsupported
+# on Windows even with one. The marker below keeps `pip install -r` working on
+# Windows instead of failing the whole file on a package that cannot build.
+#
+# Build the Hamiltonian once on Linux, macOS, WSL or Colab, copy the JSON cache
+# and its receipt across, and everything after that runs natively on Windows.
+pyscf>=2.5; sys_platform != "win32"

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+
+# Atomic-write temporaries. A completed artifact is renamed into place, so a
+# file matching this pattern only exists if a write was interrupted.
+.*.json.*.tmp
+
+# Test scratch files, cleaned up by tests/test_core.py on success.
+_test_*.json

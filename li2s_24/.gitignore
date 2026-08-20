@@ -1,0 +1,14 @@
+# Generated, not source.
+#
+# The caches are the expensive artifact -- they are what `prepare` spends its
+# PySCF time on -- but they are reproducible from `molecule.py` and they carry
+# their own specification hash, so a stale one is a hard error rather than a
+# wrong answer. Keep them out of the history and copy them between machines
+# directly; `validate` will refuse any that does not match the current spec.
+cache/
+results/
+
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
