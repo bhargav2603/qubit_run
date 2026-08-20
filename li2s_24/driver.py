@@ -620,3 +620,158 @@ def paulis_main(spec: MoleculeSpec, cache_root: str) -> int:
         "HI-VQE measures the circuit once and diagonalises classically."
     )
     return 0
+
+
+# --------------------------------------------------------------------------
+# adapt
+# --------------------------------------------------------------------------
+
+
+def adapt_main(spec: MoleculeSpec, cache_root: str, results_root: str) -> int:
+    """ADAPT-VQE at one bond length, on the same validated cache HI-VQE uses.
+
+    This is the fair-opponent run. It gives conventional VQE its best possible
+    case -- an ansatz the algorithm builds for itself, exact expectation values,
+    infinite shots, zero noise and no measurement budget at all -- so that any
+    gap left against CASCI is the ansatz, not the hardware and not the optimiser.
+    """
+    from adapt_vqe import AdaptSettings, run_adapt_vqe
+    from validation import require_validation_receipt
+
+    parser = argparse.ArgumentParser(
+        description="ADAPT-VQE at one bond length (classical simulation, exact "
+        "expectation values)."
+    )
+    parser.add_argument("--distance", type=float, default=None)
+    parser.add_argument(
+        "--max-operators",
+        type=int,
+        default=40,
+        help="ceiling on the ansatz length; the run normally stops earlier, on "
+        "the gradient criterion",
+    )
+    parser.add_argument(
+        "--gradient-tolerance",
+        type=float,
+        default=1e-3,
+        help="stop when no operator in the pool has a larger energy gradient",
+    )
+    parser.add_argument("--energy-tolerance", type=float, default=1e-7)
+    parser.add_argument("--optimizer-iterations", type=int, default=200)
+    parser.add_argument(
+        "--generalized-pool",
+        action="store_true",
+        help="allow every orbital pair rather than only occupied->virtual. A "
+        "much larger pool and a more expressive ansatz -- what a stretched bond "
+        "wants, where the reference determinant no longer dominates",
+    )
+    parser.add_argument("--tag", default="", help="suffix for the result filename")
+    arguments = parser.parse_args()
+
+    bond = (
+        spec.equilibrium_bond_angstrom
+        if arguments.distance is None
+        else arguments.distance
+    )
+    cache = cache_path_for(cache_root, bond)
+    if not cache.is_file():
+        print(
+            f"No cached Hamiltonian at {cache}. Run "
+            f"`python run.py prepare --distance {bond:.3f}` where PySCF is installed."
+        )
+        return 1
+    receipt = require_validation_receipt(cache, spec)
+    cached = load_cache(cache)
+
+    print(
+        f"{spec.name} r = {cached.bond_angstrom:.3f} A | "
+        f"CAS({cached.metadata['n_active_electrons']}e,"
+        f"{cached.metadata['n_active_orbitals']}o) | "
+        f"{cached.metadata['n_qubits']} qubits | "
+        f"{cached.space.full_dimension:,} determinants"
+    )
+    print(
+        f"  E(RHF) = {cached.hartree_fock_energy:.9f}   "
+        f"E({cached.reference_method}) = {cached.reference_energy:.9f}   "
+        f"correlation = {cached.reference_energy - cached.hartree_fock_energy:.6f} Ha"
+    )
+    print()
+
+    settings = AdaptSettings(
+        max_operators=arguments.max_operators,
+        gradient_tolerance=arguments.gradient_tolerance,
+        energy_tolerance=arguments.energy_tolerance,
+        optimizer_iterations=arguments.optimizer_iterations,
+        generalized_pool=arguments.generalized_pool,
+    )
+    name = f"adapt_r{cached.bond_angstrom:.3f}"
+    if arguments.generalized_pool:
+        name += "_gsd"
+    if arguments.tag:
+        name += f"_{arguments.tag}"
+    target = Path(results_root) / f"{name}.json"
+
+    def checkpoint(records) -> None:
+        write_json_atomic(
+            target,
+            {
+                "method": "ADAPT-VQE",
+                "partial": True,
+                "molecule": spec.name,
+                "bond_angstrom": cached.bond_angstrom,
+                "reference_energy": cached.reference_energy,
+                "hartree_fock_energy": cached.hartree_fock_energy,
+                "full_cas_determinants": cached.space.full_dimension,
+                "n_qubits": cached.metadata["n_qubits"],
+                "iterations": [record.as_dict() for record in records],
+            },
+        )
+
+    result = run_adapt_vqe(
+        cached.space,
+        cached.reference_energy,
+        cached.hartree_fock_energy,
+        settings,
+        checkpoint=checkpoint,
+    )
+
+    payload = result.as_dict()
+    payload.update(
+        {
+            "molecule": spec.name,
+            "bond_angstrom": cached.bond_angstrom,
+            "basis": cached.metadata["basis"],
+            "orbitals": cached.metadata["orbitals"],
+            "n_qubits": cached.metadata["n_qubits"],
+            "n_active_electrons": cached.metadata["n_active_electrons"],
+            "n_active_orbitals": cached.metadata["n_active_orbitals"],
+            "full_cas_determinants": cached.space.full_dimension,
+            "reference_method": cached.reference_method,
+            "reference_spin_squared": cached.metadata["energies"].get(
+                "reference_spin_squared"
+            ),
+            "cache": cache.name,
+            "cache_sha256": receipt["cache_sha256"],
+            "workflow_sha256": workflow_fingerprint(),
+        }
+    )
+    write_json_atomic(target, payload)
+
+    print()
+    print(f"  verdict               {result.verdict}")
+    print(f"  energy                {result.energy:.9f} Ha")
+    print(f"  E({cached.reference_method})              {result.reference_energy:.9f} Ha")
+    print(
+        f"  error                 {result.error_hartree * 1000:.4f} mHa "
+        f"({'inside' if abs(result.error_hartree) <= 1.6e-3 else 'OUTSIDE'} "
+        f"chemical accuracy)"
+    )
+    print(f"  correlation recovered {100 * payload['correlation_recovered']:.3f}%")
+    print(f"  <S^2>                 {result.spin_squared:.6f}")
+    print(f"  ansatz length         {result.n_parameters} operators "
+          f"from a pool of {result.n_operators_in_pool:,}")
+    print(f"  energy evaluations    {result.energy_evaluations:,}")
+    print(f"  sigma products        {result.sigma_products:,}")
+    print(f"  wall time             {result.seconds / 60:.1f} min")
+    print(f"\n  written to {target}")
+    return 0

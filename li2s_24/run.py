@@ -30,6 +30,9 @@ Commands:
   paulis     Count the Pauli words a conventional VQE would have to measure.
   classical  MP2, CCSD and CCSD(T) frozen to the same active space (PySCF).
   hivqe      Run HI-VQE at one bond length.
+  adapt      Run ADAPT-VQE at one bond length -- the conventional-VQE
+             comparison, given its best case: an ansatz it builds itself,
+             exact expectation values, infinite shots and no measurement cost.
   scan       Run HI-VQE along the whole Li-S dissociation coordinate.
   summary    Tabulate every result in results/.
   plot       Chart every result in results/ and save the PNGs.
@@ -92,6 +95,10 @@ def main() -> int:
         from driver import hivqe_main
 
         return hivqe_main(LI2S, CACHE, RESULTS)
+    if command == "adapt":
+        from driver import adapt_main
+
+        return adapt_main(LI2S, CACHE, RESULTS)
     if command == "scan":
         from driver import scan_main
 
