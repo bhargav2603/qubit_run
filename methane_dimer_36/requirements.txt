@@ -1,0 +1,21 @@
+# Pinned to versions whose APIs this folder was written against and verified
+# by reading their sources, not their docs. The SQD stack moves fast and its
+# API has churned; unpinning is the most likely cause of a broken run.
+#
+# NOTE: pyscf and ffsim publish no Windows wheels (manylinux + macOS only).
+#       Use Colab, WSL2, or a Linux/macOS host. See README.md.
+
+numpy>=1.26,<3
+scipy>=1.11
+
+pyscf==2.14.0
+ffsim==0.0.84
+
+qiskit>=2.0,<3
+qiskit-addon-sqd==0.13.1
+
+# Only needed for `run.py sqd --backend hardware`.
+qiskit-ibm-runtime>=0.40
+
+# Test suite only.
+pytest>=8.0
