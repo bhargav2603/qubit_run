@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.venv-*/
+
+# ------------------------------------------------------------ Notebooks ----
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------- LaTeX ----
+# Build artifacts. `pdflatex main.tex` regenerates all of these; only main.tex,
+# main.pdf and figures/ are source.
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.log
+
+# ------------------------------------------------------- Atomic writes ----
+# A completed artifact is renamed into place, so a file matching this pattern
+# only exists if a write was interrupted.
+.*.json.*.tmp
+
+# ------------------------------------------------------------- Scratch ----
+_test_*.json
