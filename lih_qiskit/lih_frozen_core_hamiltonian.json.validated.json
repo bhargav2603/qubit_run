@@ -1,8 +1,0 @@
-{
-  "cache_sha256": "6423e19956432afc9169075e27b9200c147d771554805a4007cb668c8def91f0",
-  "spec_sha256": "2c2041c7740e08d79f90a9c62323b090201c04bbe618f5653ff5cefef846ea73",
-  "workflow_sha256": "04b2e651dd029c5b7c99d42eaa19d115d9e107d04d10f3e27d65faae81001f3f",
-  "number_penalty_hartree": 1.0,
-  "spin_penalty_hartree": 0.0,
-  "checks": "all_passed"
-}

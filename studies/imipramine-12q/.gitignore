@@ -1,0 +1,15 @@
+# Study-specific artifacts. Shared Python/LaTeX/venv rules live in the repo-root
+# .gitignore.
+#
+# The cache and its receipt are produced by `prepare` and `validate` on a machine
+# that has PySCF; `results/` is produced by `vqe` and `adapt`. All are
+# reproducible from the source here, and the cache is large enough that
+# committing it would dominate the repository.
+#
+# Commit them deliberately if you want a specific run archived:
+#   git add -f hamiltonian_cas6e6o.json hamiltonian_cas6e6o.validated.json
+# Keep the pair together: the receipt is bound to the cache by hash and is
+# meaningless without it.
+hamiltonian_cas6e6o.json
+hamiltonian_cas6e6o.validated.json
+results/

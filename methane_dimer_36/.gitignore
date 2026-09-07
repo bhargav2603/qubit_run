@@ -1,6 +1,0 @@
-data/
-__pycache__/
-*.pyc
-report.md
-report.html
-.pytest_cache/

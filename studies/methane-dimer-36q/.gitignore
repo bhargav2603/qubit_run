@@ -1,0 +1,6 @@
+# Study-specific artifacts. Shared Python/LaTeX/venv rules live in the repo-root
+# .gitignore.
+data/
+report.md
+report.html
+.pytest_cache/

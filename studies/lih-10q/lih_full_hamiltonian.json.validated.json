@@ -1,0 +1,8 @@
+{
+  "cache_sha256": "c32cafab94bcd1685e6e1c8b96b9aac3a9530af192a9d3a74273b1296e1b12a8",
+  "spec_sha256": "76e29fa75c542fd3060b4f730588d6ad659bf8c22207f0066df7f3ef11e5619c",
+  "workflow_sha256": "1cb6a95e533bb3e0e945ad51951703a48b5a7fa4fcff66bbaad8c22c4b660e6d",
+  "number_penalty_hartree": 1.0,
+  "spin_penalty_hartree": 0.0,
+  "checks": "all_passed"
+}

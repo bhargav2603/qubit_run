@@ -1,0 +1,164 @@
+{
+  "status": "verified_chemical_accuracy",
+  "accuracy_definition": "VQE within 1.6 mHa of CASCI for the identical cached active-space Hamiltonian, with symmetry breaking and MPS truncation each priced below 0.16 mHa",
+  "backend": "Qiskit Aer (statevector)",
+  "workflow_sha256": "1cb6a95e533bb3e0e945ad51951703a48b5a7fa4fcff66bbaad8c22c4b660e6d",
+  "seed": 7,
+  "chemistry": {
+    "molecule": "LiH CASCI(2e,5o), frozen 1s core",
+    "basis": "sto-3g",
+    "charge": 0,
+    "spin_2s": 0,
+    "geometry_source": "Experimental equilibrium bond length r_e(LiH) = 1.5949 Angstrom (Huber & Herzberg, via NIST CCCBDB), rounded to 1.595. Vacuum, neutral, closed shell.",
+    "model_note": "Vacuum CASCI(2e,5o) in canonical RHF orbitals with Li 1s frozen. The reference energy is CASCI in this active space, NOT full-space FCI: an energy below it is proof the state left the two-electron sector, not proof of better chemistry.",
+    "orbital_selection": "canonical_hf_frontier",
+    "spec_sha256": "292278de76adce368be048cf07d5314b009ac561a7008936459c8b6531cef260",
+    "workflow_sha256": "1cb6a95e533bb3e0e945ad51951703a48b5a7fa4fcff66bbaad8c22c4b660e6d",
+    "atoms": [
+      [
+        "Li",
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        "H",
+        [
+          0.0,
+          0.0,
+          1.595
+        ]
+      ]
+    ],
+    "integral_backend": "native-sto3g",
+    "total_electrons": 4,
+    "total_spatial_orbitals": 6,
+    "active_spatial_orbitals": 5,
+    "active_electrons": 2,
+    "active_mo_indices_zero_based": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "active_mo_energies_hartree": [
+      -0.28569626461863934,
+      0.07826090308658096,
+      0.16393841854959623,
+      0.16393841854959648,
+      0.5491013677309152
+    ],
+    "active_orbital_diagnostics": [],
+    "min_active_orbital_localization": 0.3,
+    "delocalized_active_orbitals_overridden": false,
+    "frozen_core_orbitals": 1,
+    "qubits": 10,
+    "nuclear_repulsion_hartree": 0.995317638094044,
+    "core_energy_hartree": -6.802973547529636,
+    "hartree_fock_energy_hartree": -7.8620238740152955,
+    "reference_energy_hartree": -7.882174519889662,
+    "reference_method": "CASCI",
+    "reference_solver": "exact diagonalization in the N-electron sector",
+    "pauli_terms": 276,
+    "pauli_terms_before_truncation": 276,
+    "discarded_pauli_terms": 0,
+    "hamiltonian_cutoff_hartree": 1e-06,
+    "truncation_l1_bound_hartree": 0.0
+  },
+  "validation": {
+    "cache_sha256": "c14f215122bbfcda3284ff0f771ed1d4ee706d94f25b468434d070145216ae9b",
+    "spec_sha256": "292278de76adce368be048cf07d5314b009ac561a7008936459c8b6531cef260",
+    "workflow_sha256": "1cb6a95e533bb3e0e945ad51951703a48b5a7fa4fcff66bbaad8c22c4b660e6d",
+    "number_penalty_hartree": 1.0,
+    "spin_penalty_hartree": 0.0,
+    "checks": "all_passed"
+  },
+  "ansatz": {
+    "name": "uccsd",
+    "entanglement": null,
+    "layers": null,
+    "parameters": 24,
+    "hartree_fock_frame": true,
+    "start": "theta=0 exactly (Hartree-Fock)",
+    "start_noise": 0.0,
+    "theta_zero_energy_hartree": -7.862023874015663,
+    "theta_zero_error_hartree": -3.6770586575585185e-13,
+    "theta_zero_live_parameters": 13,
+    "theta_zero_gradient_norm": 0.27567873560269285,
+    "number_penalty_hartree": 1.0,
+    "spin_squared_penalty_hartree": 0.0,
+    "contamination_price_hartree": 1.0
+  },
+  "simulator": {
+    "method": "statevector",
+    "max_bond_dimension": null,
+    "truncation_threshold": 1e-16,
+    "threads_requested": null,
+    "circuits_executed": 641,
+    "aer_batches": 14,
+    "mps_vs_statevector_hartree": 0.0,
+    "mps_agreement_budget_hartree": 0.00016000000000000004,
+    "statevector_energy_hartree": -7.88217451973105
+  },
+  "optimizer": {
+    "optimizer": "l-bfgs-b",
+    "tolerance": 1e-10,
+    "maxiter_requested": 500,
+    "iterations": 10,
+    "objective_evaluations": 12,
+    "converged": true,
+    "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+    "gradient": "finite_difference"
+  },
+  "vqe": {
+    "objective_energy_hartree": -7.882174519731061,
+    "physical_energy_hartree": -7.88217451973105,
+    "electron_number": 2.0000000000000977,
+    "number_deviation_squared": 5.551115123125783e-15,
+    "spin_squared": 2.6027205390910524e-09,
+    "contamination_energy_hartree": 2.6027260902061755e-09,
+    "contamination_energy_budget_hartree": 0.00016000000000000004,
+    "reference_energy_hartree": -7.882174519889662,
+    "error_millihartree": 1.5861179036846806e-07,
+    "within_chemical_accuracy": true,
+    "parameters": [
+      -0.03823246223181204,
+      -5.878049391755634e-09,
+      1.6443288022485047e-09,
+      -0.00363598045361606,
+      0.03818298661393598,
+      1.1565627623988929e-08,
+      7.859899809397806e-10,
+      0.003636841005631213,
+      -0.033003928693698246,
+      6.678139558388764e-09,
+      1.4552761987991218e-08,
+      0.05947932074243771,
+      1.997512491627256e-08,
+      -0.027443725978014376,
+      8.379092421963136e-09,
+      3.488203434579885e-09,
+      -1.0778631237569112e-08,
+      -9.152700358156688e-09,
+      -0.027454101374045557,
+      3.6434105442882146e-09,
+      -0.0593379088433403,
+      2.2771714962142325e-09,
+      -1.8419309612499034e-08,
+      -0.11457690446727298
+    ]
+  },
+  "runtime_seconds": 80.01118460000725,
+  "platform": "Windows 11 / Python 3.13.7",
+  "versions": {
+    "qiskit": "2.3.1",
+    "qiskit-aer": "0.17.2",
+    "openfermion": "1.8.1",
+    "pyscf": "unknown",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1"
+  }
+}
