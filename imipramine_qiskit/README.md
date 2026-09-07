@@ -209,6 +209,12 @@ ansatz always leaks a little, so each broken symmetry is priced at 1 Ha per unit
 and the total must stay under **0.16 mHa** — one tenth of chemical accuracy, small
 enough that contamination cannot be what produced the reported error.
 
+## Report
+
+[`report/`](report/) holds a standalone research report on this study —
+*ADAPT-VQE on Imipramine, CAS(6e,6o), 12 Qubits*, 13 pages. Build with
+`pdflatex main.tex` (three passes).
+
 ## Files
 
 | File | Purpose |

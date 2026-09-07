@@ -122,6 +122,12 @@ and FCI energies, and the requirement that the Hartree–Fock determinant of the
 spaces — which ties the CAS transformation, the two-electron transformation and
 the frozen-core energy together.
 
+## Report
+
+[`report/`](report/) holds a standalone research report on this study —
+*Ansatz Expressivity and Symmetry Accounting in a 10- and 12-Qubit LiH
+Benchmark*, 11 pages. Build with `pdflatex main.tex` (three passes).
+
 ## Files
 
 | File | Role |

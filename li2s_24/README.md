@@ -263,6 +263,12 @@ same-spin blocks, ranking candidates — not by the dimension. Lower
 `--max-determinants` when short of memory, never to save time. What costs time is
 **sampling**, ~2.5 s per circuit evaluation, and SPSA asks for three per iteration.
 
+## Report
+
+[`report/`](report/) holds a standalone research report on this study —
+*HI-VQE on Li₂S at 24 Qubits*, 14 pages. Build with `pdflatex main.tex`
+(three passes).
+
 ## Files
 
 | File | Purpose |

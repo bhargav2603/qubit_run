@@ -51,7 +51,7 @@ file is a hard error, not a wrong answer.
 **1. Prove the stack** (Windows, no chemistry package, no cache):
 
 ```powershell
-python run.py selftest          # ~65 s, 16 checks
+python run.py selftest          # 20 checks, ~170 s
 python run.py backend
 python -m unittest discover -s tests -v
 ```
@@ -203,6 +203,13 @@ describing the reaction region.
   larger than the VQE's error against CASCI, and should be reported alongside it.
 - This is a noiseless simulation. It says nothing about hardware feasibility.
   (CovAngelo's own IQM Garnet run missed FCI by 2.058–2.943 Ha.)
+
+## Report
+
+[`report/`](report/) holds a standalone report — *Verification of a Local VQE
+Stack for a Thio-Michael Addition*, 11 pages. It is a verification report: the
+molecular Hamiltonians have not been built, and §7 states exactly what remains.
+Build with `pdflatex main.tex` (three passes).
 
 ## Files
 
